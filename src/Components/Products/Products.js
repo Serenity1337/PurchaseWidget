@@ -1,25 +1,43 @@
-import React, { useState } from 'react'
+import React, { useState, useEffect } from 'react'
 import classes from './Products.module.scss'
 export const Products = ({ values, setValues }) => {
   const [cart, setCart] = useState([])
-  const inputHandler = (event) => {
-    let cartCopy = [...cart]
-    console.log(event.target.checked)
-    console.log(values, setValues)
-    if (event.target.checked) {
-      cartCopy.push(event.target.name)
-    } else {
-      cartCopy.filter((cartItem) => cartItem === event.target.name)
+  const [checkBoxes, setCheckBoxes] = useState({
+    p_1: false,
+    p_2: false,
+    p_3: false,
+    p_4: false,
+  })
+
+  useEffect(() => {
+    const checkBoxesClone = { ...checkBoxes }
+    for (let index = 0; index < values.profile.products.length; index++) {
+      checkBoxesClone[values.profile.products[index]] = true
     }
-    setCart(cartCopy)
-  }
+    setCheckBoxes(checkBoxesClone)
+    setCart(values.profile.products)
+  }, [])
+
   const goToNextForm = () => {
     const valuesCopy = { ...values }
-    valuesCopy.profile.products = cart
+    const cartCopy = [...cart]
+    for (let index = 0; index < values.allProducts.length; index++) {
+      if (checkBoxes[values.allProducts[index].id]) {
+        cartCopy.push(values.allProducts[index].id)
+      }
+    }
+    valuesCopy.profile.products = cartCopy
     valuesCopy.formState[0].products = false
     valuesCopy.formState[1].contacts = true
     setValues(valuesCopy)
   }
+
+  const checkBoxHandler = (product) => {
+    const checkBoxesClone = { ...checkBoxes }
+    checkBoxesClone[product.id] = !checkBoxes[product.id]
+    setCheckBoxes(checkBoxesClone)
+  }
+
   return (
     <div className={classes.productsContainer}>
       <h1 className={classes.productsHeading}>Please select products.</h1>
@@ -29,10 +47,11 @@ export const Products = ({ values, setValues }) => {
             <div key={product.id} className={classes.productsInfoContainer}>
               <div className={classes.productTitleContainer}>
                 <input
-                  onChange={inputHandler}
+                  onChange={() => checkBoxHandler(product)}
                   type='checkbox'
                   name={product.id}
                   id={product.id}
+                  checked={checkBoxes[product.id]}
                 />
                 <label for={product.id} className={classes.productTitle}>
                   {product.title}
