@@ -2,6 +2,8 @@ import React, { useEffect, useState } from 'react'
 import classes from './PurchaseWidget.module.scss'
 import Products from '../../Components/Products'
 import Contacts from '../../Components/Contacts'
+import Checkout from '../../Components/Checkout'
+import { getProducts, getIp, getTaxes } from '../../Utils/Api/Api'
 export const PurchaseWidget = () => {
   const [values, setValues] = useState({
     formState: [
@@ -18,26 +20,29 @@ export const PurchaseWidget = () => {
     },
   })
   useEffect(() => {
-    fetch(`https://run.mocky.io/v3/b5eb9a17-4e56-4841-bb9a-094cd3fcec96`, {
-      method: 'GET',
-      headers: {
-        'Content-Type': 'application/json',
-      },
+    const valuesCopy = { ...values }
+    const taxesResponse = getTaxes()
+    const productsResponse = getProducts()
+    const ipResponse = getIp()
+    productsResponse.then((products) => {
+      valuesCopy.allProducts = [...products]
     })
-      .then((header) => {
-        return header.json()
-      })
-      .then((response) => {
-        if (response) {
-          const valuesCopy = { ...values }
-          valuesCopy.allProducts = [...response]
-          setValues(valuesCopy)
+
+    taxesResponse.then((taxes) => {
+      ipResponse.then((ip) => {
+        const tax_rate = taxes.filter(
+          (code) => code.countryCode === ip.country_code.toLowerCase()
+        )
+        console.log(tax_rate)
+        console.log(ip)
+        valuesCopy.profile.taxInfo = {
+          countryCode: ip.country_code,
+          rate: tax_rate[0].rate,
         }
+        setValues(valuesCopy)
       })
-      .catch((e) => {
-        return e
-      })
-  }, [values])
+    })
+  }, [])
 
   return (
     <form className={classes.container}>
@@ -48,6 +53,9 @@ export const PurchaseWidget = () => {
       ) : null}
       {values.formState[1].contacts ? (
         <Contacts values={values} setValues={setValues} />
+      ) : null}
+      {values.formState[2].orderReview ? (
+        <Checkout values={values} setValues={setValues} />
       ) : null}
     </form>
   )

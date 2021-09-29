@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react'
 import classes from './Products.module.scss'
+import { returnPriceObj } from '../../Utils/HelperFunctions/HelperFunctions'
 export const Products = ({ values, setValues }) => {
   const [cart, setCart] = useState([])
   const [checkBoxes, setCheckBoxes] = useState({
@@ -23,10 +24,13 @@ export const Products = ({ values, setValues }) => {
     const cartCopy = [...cart]
     for (let index = 0; index < values.allProducts.length; index++) {
       if (checkBoxes[values.allProducts[index].id]) {
-        cartCopy.push(values.allProducts[index].id)
+        cartCopy.push(values.allProducts[index])
       }
     }
+
     valuesCopy.profile.products = cartCopy
+    valuesCopy.profile = returnPriceObj(valuesCopy)
+    console.log(valuesCopy)
     valuesCopy.formState[0].products = false
     valuesCopy.formState[1].contacts = true
     setValues(valuesCopy)
@@ -53,7 +57,7 @@ export const Products = ({ values, setValues }) => {
                   id={product.id}
                   checked={checkBoxes[product.id]}
                 />
-                <label for={product.id} className={classes.productTitle}>
+                <label htmlFor={product.id} className={classes.productTitle}>
                   {product.title}
                 </label>
               </div>

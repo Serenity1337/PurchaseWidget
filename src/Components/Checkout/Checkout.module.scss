@@ -1,0 +1,66 @@
+.orderContainer {
+  .orderHeading,
+  .productsHeading,
+  .contactHeading,
+  .priceHeading {
+    color: #fff;
+    font-size: 20px;
+    text-align: center;
+  }
+  .productsHeading,
+  .contactHeading,
+  .priceHeading,
+  .totalHeading {
+    text-align: left;
+    margin: 10px 0px 0px 0px;
+  }
+  .productInfo,
+  .contactInfo,
+  .netPriceInfo,
+  .taxInfo,
+  .totalInfo {
+    display: flex;
+    justify-content: space-between;
+    .productName,
+    .productPrice,
+    .nameLabel,
+    .clientName,
+    .productsLabel,
+    .netTotal,
+    .taxesLabel,
+    .taxes,
+    .taxesLabel,
+    .grossTotal {
+      color: #fff;
+      margin: 10px 0px 0px 0px;
+    }
+  }
+  // .contactInfo {
+  //   display: flex;
+  //   justify-content: space-between;
+  //   .nameLabel,
+  //   .clientName {
+  //     color: #fff;
+  //     margin: 10px 0px 0px 0px;
+  //   }
+  // }
+  .btnContainer {
+    display: flex;
+    justify-content: space-between;
+    margin: 20px 0px 0px 0px;
+    .checkout,
+    .prevForm {
+      width: 40%;
+      background: 0;
+      border: 2px solid #6fdec4;
+      color: #fff;
+      cursor: pointer;
+      padding: 10px 0px;
+      text-align: center;
+    }
+    .checkout:hover,
+    .prevForm:hover {
+      background-color: #6fdec4;
+    }
+  }
+}
