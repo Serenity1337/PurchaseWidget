@@ -28,7 +28,7 @@ export const Products = () => {
 
   const goToNextForm = () => {
     let profileCopy = { ...profile }
-    let cartCopy = [...cart]
+    let newCart = []
     let formStateCopy = [...formState]
     if (
       !checkBoxes.p_1 &&
@@ -38,15 +38,13 @@ export const Products = () => {
     ) {
       setErrorMsg('Please select atleast one product')
     } else {
-      if (cart.length < 1) {
-        for (let index = 0; index < products.length; index++) {
-          if (checkBoxes[products[index].id]) {
-            cartCopy.push(products[index])
-          }
+      for (let index = 0; index < products.length; index++) {
+        if (checkBoxes[products[index].id]) {
+          newCart.push(products[index])
         }
       }
 
-      profileCopy.products = cartCopy
+      profileCopy.products = newCart
       profileCopy = returnPriceObj(profileCopy)
 
       formStateCopy[0].products = false
