@@ -1,6 +1,6 @@
-export const returnPriceObj = (values) => {
-  const profileCopy = { ...values.profile }
-  const { products, taxInfo } = profileCopy
+export const returnPriceObj = (profile) => {
+  const { products, taxInfo } = profile
+  let profileCopy = { ...profile }
   let netTotal = 0
   let grossTotal = 0
   for (let index = 0; index < products.length; index++) {
@@ -12,7 +12,7 @@ export const returnPriceObj = (values) => {
     netTotal,
     taxes,
     grossTotal: grossTotal,
-    currency: values.allProducts[0].price.currency,
+    currency: products[0].price.currency,
   }
   profileCopy.price = newPriceObj
   return profileCopy

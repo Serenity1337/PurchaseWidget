@@ -1,36 +1,32 @@
-import React, { useState, useEffect } from 'react'
-import { createOrder } from '../../Utils/Api/Api'
+import React from 'react'
 import classes from './Checkout.module.scss'
-export const Checkout = ({ values, setValues }) => {
-  const checkout = () => {
-    const initialValues = {
-      formState: [
-        { products: true },
-        { contacts: false },
-        { orderReview: false },
-      ],
-      allProducts: [],
-      profile: {
-        products: [],
-        contact: { firstName: '', lastName: '', email: '' },
-        price: {},
-        taxInfo: {},
-      },
-    }
-
-    const response = createOrder(values.profile)
-    response.then((res) => {
-      console.log(res)
-    })
-    console.log(response)
+import { useSelector, useDispatch } from 'react-redux'
+import { ButtonContainer } from '../Shared/ButtonContainer/ButtonContainer'
+export const Checkout = () => {
+  const dispatch = useDispatch()
+  const profile = useSelector((state) => state.profile)
+  const formState = useSelector((state) => state.formState)
+  const goToPrevForm = () => {
+    const formStateCopy = [...formState]
+    formStateCopy[2].orderReview = false
+    formStateCopy[1].contacts = true
+    dispatch({ type: 'UPDATE_FORMSTATE', formStateCopy })
   }
-  const goToPrevForm = () => {}
+  const firstBtn = {
+    type: '',
+    text: 'Prev',
+    onClick: goToPrevForm,
+  }
+  const secondBtn = {
+    type: 'submit',
+    text: 'Checkout',
+  }
   return (
     <div className={classes.orderContainer}>
       <h1 className={classes.orderHeading}>Order review</h1>
       <h1 className={classes.productsHeading}>Products</h1>
 
-      {values.profile.products.map((product) => (
+      {profile.products.map((product) => (
         <div className={classes.productInfo}>
           <span className={classes.productName}>{product.title}</span>
           <span className={classes.productPrice}>{product.price.amount} €</span>
@@ -41,7 +37,7 @@ export const Checkout = ({ values, setValues }) => {
       <div className={classes.contactInfo}>
         <span className={classes.nameLabel}>Name</span>
         <span className={classes.clientName}>
-          {values.profile.contact.firstName} {values.profile.contact.lastName}
+          {profile.contact.firstName} {profile.contact.lastName}
         </span>
       </div>
 
@@ -49,33 +45,21 @@ export const Checkout = ({ values, setValues }) => {
 
       <div className={classes.netPriceInfo}>
         <span className={classes.productsLabel}>Product&#40;s&#41;</span>
-        <span className={classes.netTotal}>
-          {values.profile.price.netTotal} €
-        </span>
+        <span className={classes.netTotal}>{profile.price.netTotal} €</span>
       </div>
 
       <div className={classes.taxInfo}>
         <span className={classes.taxesLabel}>Taxes</span>
-        <span className={classes.taxes}>{values.profile.price.taxes} €</span>
+        <span className={classes.taxes}>{profile.price.taxes} €</span>
       </div>
 
       <h1 className={classes.totalHeading}>Total</h1>
 
       <div className={classes.totalInfo}>
         <span className={classes.taxesLabel}>Taxes</span>
-        <span className={classes.grossTotal}>
-          {values.profile.price.grossTotal} €
-        </span>
+        <span className={classes.grossTotal}>{profile.price.grossTotal} €</span>
       </div>
-
-      <div className={classes.btnContainer}>
-        <div className={classes.prevForm} onClick={goToPrevForm}>
-          Prev
-        </div>
-        <div className={classes.checkout} onClick={checkout}>
-          Checkout
-        </div>
-      </div>
+      <ButtonContainer firstBtn={firstBtn} secondBtn={secondBtn} />
     </div>
   )
 }

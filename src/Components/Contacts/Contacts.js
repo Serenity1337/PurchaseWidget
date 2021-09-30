@@ -1,14 +1,21 @@
 import React, { useState, useEffect } from 'react'
 import classes from './Contacts.module.scss'
-export const Contacts = ({ values, setValues }) => {
+import { useSelector, useDispatch } from 'react-redux'
+import ErrorMsg from '../Shared/ErrorMsg'
+import { ButtonContainer } from '../Shared/ButtonContainer/ButtonContainer'
+export const Contacts = () => {
+  const dispatch = useDispatch()
+  const profile = useSelector((state) => state.profile)
+  const formState = useSelector((state) => state.formState)
   const [userInfo, setUserInfo] = useState({
     firstName: '',
     lastName: '',
     email: '',
   })
 
+  const [errorMsg, setErrorMsg] = useState('')
   useEffect(() => {
-    setUserInfo(values.profile.contact)
+    setUserInfo(profile.contact)
   }, [])
   const inputHandler = (event) => {
     let userInfoCopy = { ...userInfo }
@@ -16,24 +23,48 @@ export const Contacts = ({ values, setValues }) => {
     setUserInfo(userInfoCopy)
   }
   const goToNextForm = () => {
-    const valuesCopy = { ...values }
-    valuesCopy.profile.contact = userInfo
-    valuesCopy.formState[1].contacts = false
-    valuesCopy.formState[2].orderReview = true
-    setValues(valuesCopy)
+    const profileCopy = { ...profile }
+    const formStateCopy = [...formState]
+
+    if (!userInfo.firstName || !userInfo.lastName || !userInfo.email) {
+      setErrorMsg('All fields are required')
+    } else {
+      profileCopy.contact = userInfo
+
+      formStateCopy[1].contacts = false
+      formStateCopy[2].orderReview = true
+
+      dispatch({ type: 'UPDATE_PROFILE', profileCopy })
+      dispatch({ type: 'UPDATE_FORMSTATE', formStateCopy })
+    }
   }
   const goToPrevForm = () => {
-    const valuesCopy = { ...values }
-    valuesCopy.profile.contact = userInfo
-    valuesCopy.formState[1].contacts = false
-    valuesCopy.formState[0].products = true
-    setValues(valuesCopy)
+    const profileCopy = { ...profile }
+    const formStateCopy = [...formState]
+
+    profileCopy.contact = userInfo
+
+    formStateCopy[1].contacts = false
+    formStateCopy[0].products = true
+
+    dispatch({ type: 'UPDATE_PROFILE', profileCopy })
+    dispatch({ type: 'UPDATE_FORMSTATE', formStateCopy })
   }
   const contacts = [
     { name: 'First Name', class: 'firstName' },
     { name: 'Last Name', class: 'lastName' },
     { name: 'Email', class: 'email' },
   ]
+  const firstBtn = {
+    type: '',
+    text: 'Prev',
+    onClick: goToPrevForm,
+  }
+  const secondBtn = {
+    type: '',
+    text: 'Next',
+    onClick: goToNextForm,
+  }
   return (
     <div className={classes.contactsContainer}>
       <h1 className={classes.contactsHeading}>
@@ -50,14 +81,8 @@ export const Contacts = ({ values, setValues }) => {
           value={userInfo[contact.class]}
         />
       ))}
-      <div className={classes.btnContainer}>
-        <div className={classes.prevForm} onClick={goToPrevForm}>
-          Prev
-        </div>
-        <div className={classes.nextForm} onClick={goToNextForm}>
-          Next
-        </div>
-      </div>
+      {errorMsg ? <ErrorMsg msg={errorMsg} /> : null}
+      <ButtonContainer firstBtn={firstBtn} secondBtn={secondBtn} />
     </div>
   )
 }

@@ -1,7 +1,14 @@
 import React, { useState, useEffect } from 'react'
 import classes from './Products.module.scss'
 import { returnPriceObj } from '../../Utils/HelperFunctions/HelperFunctions'
-export const Products = ({ values, setValues }) => {
+import { useSelector, useDispatch } from 'react-redux'
+import ErrorMsg from '../Shared/ErrorMsg'
+import Button from '../Shared/Button'
+export const Products = () => {
+  const dispatch = useDispatch()
+  const products = useSelector((state) => state.products)
+  const profile = useSelector((state) => state.profile)
+  const formState = useSelector((state) => state.formState)
   const [cart, setCart] = useState([])
   const [checkBoxes, setCheckBoxes] = useState({
     p_1: false,
@@ -9,31 +16,45 @@ export const Products = ({ values, setValues }) => {
     p_3: false,
     p_4: false,
   })
-
+  const [errorMsg, setErrorMsg] = useState('')
   useEffect(() => {
     const checkBoxesClone = { ...checkBoxes }
-    for (let index = 0; index < values.profile.products.length; index++) {
-      checkBoxesClone[values.profile.products[index]] = true
+    for (let index = 0; index < profile.products.length; index++) {
+      checkBoxesClone[profile.products[index].id] = true
     }
     setCheckBoxes(checkBoxesClone)
-    setCart(values.profile.products)
+    setCart(profile.products)
   }, [])
 
   const goToNextForm = () => {
-    const valuesCopy = { ...values }
-    const cartCopy = [...cart]
-    for (let index = 0; index < values.allProducts.length; index++) {
-      if (checkBoxes[values.allProducts[index].id]) {
-        cartCopy.push(values.allProducts[index])
+    let profileCopy = { ...profile }
+    let cartCopy = [...cart]
+    let formStateCopy = [...formState]
+    if (
+      !checkBoxes.p_1 &&
+      !checkBoxes.p_2 &&
+      !checkBoxes.p_3 &&
+      !checkBoxes.p_4
+    ) {
+      setErrorMsg('Please select atleast one product')
+    } else {
+      if (cart.length < 1) {
+        for (let index = 0; index < products.length; index++) {
+          if (checkBoxes[products[index].id]) {
+            cartCopy.push(products[index])
+          }
+        }
       }
-    }
 
-    valuesCopy.profile.products = cartCopy
-    valuesCopy.profile = returnPriceObj(valuesCopy)
-    console.log(valuesCopy)
-    valuesCopy.formState[0].products = false
-    valuesCopy.formState[1].contacts = true
-    setValues(valuesCopy)
+      profileCopy.products = cartCopy
+      profileCopy = returnPriceObj(profileCopy)
+
+      formStateCopy[0].products = false
+      formStateCopy[1].contacts = true
+
+      dispatch({ type: 'UPDATE_PROFILE', profileCopy })
+      dispatch({ type: 'UPDATE_FORMSTATE', formStateCopy })
+    }
   }
 
   const checkBoxHandler = (product) => {
@@ -46,8 +67,8 @@ export const Products = ({ values, setValues }) => {
     <div className={classes.productsContainer}>
       <h1 className={classes.productsHeading}>Please select products.</h1>
 
-      {values.allProducts
-        ? values.allProducts.map((product, index) => (
+      {products
+        ? products.map((product, index) => (
             <div key={product.id} className={classes.productsInfoContainer}>
               <div className={classes.productTitleContainer}>
                 <input
@@ -67,9 +88,8 @@ export const Products = ({ values, setValues }) => {
             </div>
           ))
         : null}
-      <div className={classes.nextForm} onClick={goToNextForm}>
-        Next
-      </div>
+      {errorMsg ? <ErrorMsg msg={errorMsg} /> : null}
+      <Button type='' text='Next' onClick={goToNextForm} width='100%' />
     </div>
   )
 }
